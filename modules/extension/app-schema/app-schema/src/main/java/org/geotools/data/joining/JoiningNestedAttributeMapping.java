@@ -154,6 +154,7 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
         join.setJoiningTypeName(instance.baseTableQuery.getTypeName());
         join.setDenormalised(fMapping.isDenormalised());
         join.setSortBy(instance.baseTableQuery.getSortBy()); // incorporate order 
+        join.setJoiningSource(instance.mapping.getSource());
         // pass on paging from the parent table to the same query within this join
         join.setMaxFeatures(instance.baseTableQuery.getMaxFeatures());
         join.setStartIndex(instance.baseTableQuery.getStartIndex());

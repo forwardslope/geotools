@@ -111,6 +111,10 @@ public final class AppSchemaXSDRegistry implements XSDSchemaLocator {
             Resource resolvedResource = resourceSet.getResource(URI
                     .createURI(resolvedSchemaLocationURI == null ? "" : resolvedSchemaLocationURI),
                     false);
+         // This class can't do anything with null URIs
+            if (resolvedSchemaLocationURI == null) {
+                return null;
+            }
 
             if (resolvedResource != null && resolvedResource instanceof XSDResourceImpl) {
                 return ((XSDResourceImpl) resolvedResource).getSchema();

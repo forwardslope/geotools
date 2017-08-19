@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;
@@ -40,6 +41,7 @@ public class JoiningQuery extends Query {
         protected Expression foreignKeyName;    
         protected Expression joiningKeyName;
         protected SortBy[] sortBy;
+        private FeatureSource joiningSource;
                 
         public String getJoiningTypeName() {
             return joiningTypeName;
@@ -64,6 +66,15 @@ public class JoiningQuery extends Query {
         public void setJoiningKeyName(Expression joiningKeyName) {
             this.joiningKeyName = joiningKeyName;
         }  
+        
+        public void setJoiningSource(FeatureSource joiningSource) {
+        	this.joiningSource = joiningSource;
+        }
+        	 
+        public FeatureSource getJoiningSource() {
+        	return joiningSource;
+        }
+        	         
     }
     
     protected List<QueryJoin> queryJoins;
