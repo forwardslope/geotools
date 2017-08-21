@@ -126,12 +126,12 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
      * @throws IOException
      */
     public DataAccessMappingFeatureIterator initSourceFeatures(Instance instance,
-            Name featureTypeName, CoordinateReferenceSystem reprojection,
+            Name sourceFeatureTypeName, Name featureTypeName, CoordinateReferenceSystem reprojection,
             List<PropertyName> selectedProperties, boolean includeMandatory, int resolveDepth, Integer resolveTimeOut) throws IOException {
         JoiningQuery query = new JoiningQuery();
         query.setCoordinateSystemReproject(reprojection);
 
-        FeatureTypeMapping fMapping = AppSchemaDataAccessRegistry.getMappingByName(featureTypeName);
+        FeatureTypeMapping fMapping = AppSchemaDataAccessRegistry.getMappingByName(sourceFeatureTypeName);
 
         AttributeMapping mapping = fMapping
                 .getAttributeMapping(this.nestedTargetXPath);
@@ -152,6 +152,9 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
         join.setForeignKeyName(sourceExpression);
         join.setJoiningKeyName(nestedSourceExpression);
         join.setJoiningTypeName(instance.baseTableQuery.getTypeName());
+        if (featureTypeName != null) {
+        	join.setInstanceTypeName(featureTypeName);
+        }
         join.setDenormalised(fMapping.isDenormalised());
         join.setSortBy(instance.baseTableQuery.getSortBy()); // incorporate order 
         join.setJoiningSource(instance.mapping.getSource());
@@ -186,7 +189,7 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
 
         query.setProperties(selectedProperties);
 
-        FeatureSource fSource = DataAccessRegistry.getFeatureSource((Name) featureTypeName);
+        FeatureSource fSource = DataAccessRegistry.getFeatureSource((Name) sourceFeatureTypeName);
 
         if (fSource == null) {
             throw new IOException("Internal error: Source could not be found");
@@ -223,8 +226,8 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
         
         daFeatureIterator.setForeignIds(foreignIds);
 
-        instance.featureIterators.put(featureTypeName, daFeatureIterator);
-        instance.nestedSourceExpressions.put(featureTypeName, nestedSourceExpression);
+        instance.featureIterators.put(sourceFeatureTypeName, daFeatureIterator);
+        instance.nestedSourceExpressions.put(sourceFeatureTypeName, nestedSourceExpression);
 
         for (Instance.Skip toSkip : instance.skipped) {
             while (daFeatureIterator.hasNext()
@@ -303,23 +306,27 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
                     "Trying to read Joining Nested Attribute Mapping that is not open.");
         }
 
-        Object featureTypeName = getNestedFeatureType(feature);
-        if (featureTypeName == null || !(featureTypeName instanceof Name)) {
+        Object sourceFeatureTypeName = getNestedFeatureType(feature);
+        Name featureTypeName = null;
+        if (feature instanceof Feature) {
+        	featureTypeName = ((Feature)feature).getType().getName();
+        }
+        if (sourceFeatureTypeName == null || !(sourceFeatureTypeName instanceof Name)) {
             throw new IllegalArgumentException(
-                    "Internal error: Feature type name expected but found " + featureTypeName);
+                    "Internal error: Feature type name expected but found " + sourceFeatureTypeName);
         }
         DataAccessMappingFeatureIterator featureIterator = instance.featureIterators
-                .get((Name) featureTypeName);
+                .get((Name) sourceFeatureTypeName);
         if (featureIterator == null) {
-            featureIterator = initSourceFeatures(instance, (Name) featureTypeName, reprojection,
+            featureIterator = initSourceFeatures(instance, (Name) sourceFeatureTypeName, featureTypeName, reprojection,
                     selectedProperties, includeMandatory, 0, null);
         }
         Expression nestedSourceExpression = instance.nestedSourceExpressions
-                .get((Name) featureTypeName);
+                .get((Name) sourceFeatureTypeName);
         if (nestedSourceExpression == null) {
             throw new IllegalArgumentException(
                     "Internal error: nested source expression expected but found "
-                            + featureTypeName);
+                            + sourceFeatureTypeName);
         }
 
         ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();
@@ -375,22 +382,27 @@ public class JoiningNestedAttributeMapping extends NestedAttributeMapping {
                     "Trying to read Joining Nested Attribute Mapping that is not open.");
         }
 
-        Object featureTypeName = getNestedFeatureType(feature);
-        if (featureTypeName == null || !(featureTypeName instanceof Name)) {
+        Object sourceFeatureTypeName = getNestedFeatureType(feature);
+        Name featureTypeName = null;
+        if (feature instanceof Feature) {
+        	Feature thisFeature = (Feature)feature;
+        	featureTypeName = thisFeature.getType().getName();
+        }
+        if (sourceFeatureTypeName == null || !(sourceFeatureTypeName instanceof Name)) {
             throw new IllegalArgumentException("Something is wrong!!");
         }
         DataAccessMappingFeatureIterator featureIterator = instance.featureIterators
-                .get((Name) featureTypeName);
+                .get((Name) sourceFeatureTypeName);
         if (featureIterator == null) {
-            featureIterator = initSourceFeatures(instance, (Name) featureTypeName, reprojection,
+            featureIterator = initSourceFeatures(instance, (Name) sourceFeatureTypeName, featureTypeName, reprojection,
                     selectedProperties, includeMandatory, resolveDepth, resolveTimeOut);
         }
         Expression nestedSourceExpression = instance.nestedSourceExpressions
-                .get((Name) featureTypeName);
+                .get((Name) sourceFeatureTypeName);
         if (nestedSourceExpression == null) {
             throw new IllegalArgumentException(
                     "Internal error: nested source expression expected but found "
-                            + featureTypeName);
+                            + sourceFeatureTypeName);
         }
 
         ArrayList<Feature> matchingFeatures = new ArrayList<Feature>();

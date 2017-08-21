@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;
 
@@ -42,6 +43,7 @@ public class JoiningQuery extends Query {
         protected Expression joiningKeyName;
         protected SortBy[] sortBy;
         private FeatureSource joiningSource;
+        private Name instanceTypeName = null;
                 
         public String getJoiningTypeName() {
             return joiningTypeName;
@@ -74,6 +76,15 @@ public class JoiningQuery extends Query {
         public FeatureSource getJoiningSource() {
         	return joiningSource;
         }
+
+		public Name getInstanceTypeName() {
+			return instanceTypeName;
+		}
+
+		public void setInstanceTypeName(Name instanceTypeName) {
+			this.instanceTypeName = instanceTypeName;
+		}
+        
         	         
     }
     
